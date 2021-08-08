@@ -17,6 +17,9 @@ local Bindables = ServerStorage:WaitForChild("Bindables")
 local RoomSetupFinished: BindableEvent = Bindables:WaitForChild("RoomSetupFinished")
 local RoomGameplayFinished: BindableEvent = Bindables:WaitForChild("RoomGameplayFinished")
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local SetupPlayerInRoom : RemoteEvent = Remotes:WaitForChild("SetupPlayerInRoom")
 
 --setup of Room.Rooms table
 local rooms = Rooms:GetChildren()
@@ -76,16 +79,26 @@ function Room:SetupRoomAtLocation(roomNumber:integer)
     self.Room = self.TemplateRoomReference:Clone()
     self.Room.Parent = workspace
 
-    for index, player in ipairs(self.Players) do
-        
-        player:LoadCharacter()     --TODO: load the player at a spawnpoint
-        
-    end
+
+
+    self:SetupRoomPlayers()  --setting up everything in regards to the players (load char, change camera, send gui offer)
+
 
 
     wait(5)
     self.Room:SetAttribute("SetupFinished", true)
     RoomSetupFinished:Fire()
+end
+
+function Room:SetupRoomPlayers()
+    for index, player in ipairs(self.Players) do
+        
+        player:LoadCharacter()     --TODO: load the player at a spawnpoint
+        
+        local args = {}
+        args[1] = self.Room.PrimaryPart.Position
+        SetupPlayerInRoom:FireClient(player,args)
+    end
 end
 
 function Room:IsSetupFinished()
@@ -101,8 +114,10 @@ function Room:InitiateStart()
     --WinLogic is the module within each object that we run to collect the logic for everything
     --local WinLogic = require(self.Room:WaitForChild("WinLogic"))
     for index, player in ipairs(self.Players) do
-        player.Character.Humanoid.Died:Connect(function(character)       
-            print('player died')     
+        player.Character.Death.Event:Connect(function(character)       
+            print('player died')  
+            --FIRE NECESSARY GUI EVENTS TO PLAYER MAYBE
+            
             --HANDLE PLAYER DEATH CODE HERE
             table.insert(self.Losers,player)
             --WIN CONDITION 1: ALL OTHER PLAYERS DIE
