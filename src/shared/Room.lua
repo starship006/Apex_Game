@@ -21,6 +21,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local SetupPlayerInRoom : RemoteEvent = Remotes:WaitForChild("SetupPlayerInRoom")
 
+
+local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+local PlayerInfo = require(Shared:WaitForChild("PlayerInfo"))
+local ComputerAppearanceController = require(Shared:WaitForChild("ComputerAppearanceController"))
 --setup of Room.Rooms table
 local rooms = Rooms:GetChildren()
 
@@ -93,7 +97,7 @@ end
 function Room:SetupRoomPlayers()
     for index, player in ipairs(self.Players) do
         
-        player:LoadCharacter()     --TODO: load the player at a spawnpoint
+        ComputerAppearanceController.SpawnComputer(player,self.Room.PrimaryPart.Position)     --TODO: load the player at a spawnpoint
         
         local args = {}
         args[1] = self.Room.PrimaryPart.Position
@@ -113,25 +117,8 @@ end
 function Room:InitiateStart()
     --WinLogic is the module within each object that we run to collect the logic for everything
     --local WinLogic = require(self.Room:WaitForChild("WinLogic"))
-    for index, player in ipairs(self.Players) do
-        player.Character.Death.Event:Connect(function(character)       
-            print('player died')  
-            --FIRE NECESSARY GUI EVENTS TO PLAYER MAYBE
-            
-            --HANDLE PLAYER DEATH CODE HERE
-            table.insert(self.Losers,player)
-            --WIN CONDITION 1: ALL OTHER PLAYERS DIE
-            if #self.Losers == #self.Players - 1 then
-                print("starting room finish")
-                self:InitiateRoomFinish()
-            else
-                print("room not finished yet")    
-            end
-        end)      
-        print(index)
-    end   
-
-    wait(3)
+    wait(30)
+    self:InitiateRoomFinish()    
 
 end
 
@@ -142,13 +129,13 @@ function Room:InitiateRoomFinish()
 
     --set winners (if you are not a loser, you are a winner)
     for index, player in ipairs(self.Players) do
-        if player.Character then         --as you can see, we will need to make sure that the character dosent respawn until
-                                                    --hes supposed to start the next round
-            table.insert(self.Winners,player)
+        if PlayerInfo.PlayerInformationDictionary[player.Name].Alive then
+           table.insert(self.Winners,player) 
         end
     end
-
     
+
+    --this should fire towards fullGame and GUI controllers
     RoomGameplayFinished:Fire()
 end
 

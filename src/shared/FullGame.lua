@@ -13,10 +13,12 @@ local AVERAGE_ROOMS_PER_ROUND_SERIES = 3
 
 
 --SERVIES AND MODULES
-local ServerScriptStorage = game:GetService("ServerScriptService")
-local Server = ServerScriptStorage:WaitForChild("Server")
-local PlayerInfo = require(Server:WaitForChild("PlayerInfo"))
-local Room = require(Server:WaitForChild("Room"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local PlayerInfo = require(Shared:WaitForChild("PlayerInfo"))
+local Room = require(Shared:WaitForChild("Room"))
+local ComputerAppearanceController = require(Shared:WaitForChild("ComputerAppearanceController"))
+
 
 local ServerStorage = game:GetService("ServerStorage")
 local Bindables = ServerStorage:WaitForChild("Bindables")
@@ -35,7 +37,6 @@ function FullGame.new(players)
 
 
     newGame.Players = players
-    newGame.PlayerInfos = {} --dictionary key:player name, player: associated PlayerInfo object
     newGame.CurrentActiveRooms = {}  --array of active rooms
 
 
@@ -47,12 +48,18 @@ function FullGame:Setup()
     --will generate all assets/information
     --setting up playerinfo objects
     game.Players.CharacterAutoLoads = false
-
-    for key, player in ipairs(self.Players) do
-        
+    for key, player in ipairs(self.Players) do        
         --playerInfo stuff
-        local playerInfo = PlayerInfo.new(player)
-        self.PlayerInfos[player.Name] = playerInfo
+        local playerInfo = PlayerInfo.SetupNewPlayer(player)
+        
+        --make actual character models
+        ComputerAppearanceController.new(player)
+
+
+        --temp solution to "killing everyone"
+        player.Character.Humanoid:TakeDamage(10000000)
+        player.Character:Destroy()
+        
     end
 end
 
@@ -111,7 +118,6 @@ function FullGame:StartRoom(RoomType)
     spawn(function()
         for index, RoomObject in ipairs(self.CurrentActiveRooms) do
             RoomObject:InitiateStart() 
-    
         end
     end)
 
