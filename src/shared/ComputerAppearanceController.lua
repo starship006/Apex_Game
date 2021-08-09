@@ -35,7 +35,7 @@ function ComputerAppearanceController.SpawnComputer(Player,position)
             v:SetNetworkOwner(Player)
         end
     end
-    PlayerInfo.SetPlayerAlive(Player)
+    PlayerInfo.SetPlayerAlive(Player, playerModel)
     playerModel:SetPrimaryPartCFrame(CFrame.new(position))
 end
 

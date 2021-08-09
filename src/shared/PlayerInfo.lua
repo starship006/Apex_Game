@@ -23,14 +23,16 @@ function PlayerInfo.SetupNewPlayer(Player)
     newPlayer.Health = 10    
     newPlayer.Alive = false
     newPlayer.StillInTheGame = true
+    newPlayer.ActiveModel = nil
 
     PlayerInfo.PlayerInformationDictionary[Player.Name] = newPlayer    
 end
 
 
-function PlayerInfo.SetPlayerAlive(player)
+function PlayerInfo.SetPlayerAlive(player, activeModel)
     PlayerInfo.PlayerInformationDictionary[player.Name].Alive = true
-    PlayerBecomingAlive:FireClient(player)
+    PlayerInfo.PlayerInformationDictionary[player.Name].ActiveModel = activeModel
+    PlayerBecomingAlive:FireClient(player, activeModel)
 end
 
 function PlayerInfo.SetPlayerDying(player)
