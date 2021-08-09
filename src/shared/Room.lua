@@ -7,7 +7,7 @@ local Room = {}
 Room.__index = Room
 
 
-
+local ROOM_TIME = 3
 
 --script setup
 Room.Rooms = {{},{},{}}   --[Room Type][Room Size][Index]   --Normal, Boss, Solo
@@ -117,7 +117,7 @@ end
 function Room:InitiateStart()
     --WinLogic is the module within each object that we run to collect the logic for everything
     --local WinLogic = require(self.Room:WaitForChild("WinLogic"))
-    wait(30)
+    wait(ROOM_TIME)
     self:InitiateRoomFinish()    
 
 end
@@ -131,6 +131,7 @@ function Room:InitiateRoomFinish()
     for index, player in ipairs(self.Players) do
         if PlayerInfo.PlayerInformationDictionary[player.Name].Alive then
            table.insert(self.Winners,player) 
+           ComputerAppearanceController.DespawnComputer(player)
         end
     end
     

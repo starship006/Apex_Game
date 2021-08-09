@@ -17,6 +17,11 @@ local BACKWARD_ACTION = "Backward"
 local LEFT_ACTION = "Left"
 local RIGHT_ACTION = "Right"
 
+local RunService = game:GetService("RunService")
+local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+
+local LocalGravity = 0.2
+local MouseLookEventConnection = nil
 
 local function SimpleMovement(actionName, inputState, inputObject)
     local reverse
@@ -27,17 +32,25 @@ local function SimpleMovement(actionName, inputState, inputObject)
     end
       --right now x is upwards, z is leftright
     if actionName == FORWARD_ACTION then
-        direction += Vector3.new(1,0,0) * reverse
+        direction += Vector3.new(1,-LocalGravity,0) * reverse
     elseif actionName == BACKWARD_ACTION then
-        direction += Vector3.new(-1,0,0) * reverse
+        direction += Vector3.new(-1,-LocalGravity,0) * reverse
     elseif actionName == LEFT_ACTION then
-        direction += Vector3.new(0,0,-1) * reverse
+        direction += Vector3.new(0,-LocalGravity,-1) * reverse
     elseif actionName == RIGHT_ACTION then
-        direction += Vector3.new(0,0,1) * reverse
+        direction += Vector3.new(0,-LocalGravity,1) * reverse
     end
 
     PlayerModel.BasePart.BodyVelocity.Velocity = direction * multiplier
 end
+
+
+local function MakeComputerFaceMouse()
+    local Position = PlayerModel.BasePart.Position
+    local LookPosition = Vector3.new(mouse.Hit.X, Position.Y, mouse.Hit.Z)
+
+    PlayerModel.BasePart.CFrame = CFrame.new(Position,LookPosition)
+end 
 
 PlayerBecomingAlive.OnClientEvent:Connect(function(activeModel)
     ContextActionService:BindAction(FORWARD_ACTION,SimpleMovement,false,Enum.KeyCode.W)
@@ -50,7 +63,14 @@ PlayerBecomingAlive.OnClientEvent:Connect(function(activeModel)
     PlayerModel = activeModel
     PlayerModel.BasePart.BodyVelocity.Velocity = direction * 0
     
+    MouseLookEventConnection = RunService.Heartbeat:Connect(MakeComputerFaceMouse)
+end)
 
+PlayerDied.OnClientEvent:Connect(function()
+    ContextActionService:UnbindAllActions()
+    MouseLookEventConnection:Disconnect()
+    PlayerModel = nil
+    
 end)
 
 

@@ -37,6 +37,7 @@ end
 
 function PlayerInfo.SetPlayerDying(player)
     PlayerInfo.PlayerInformationDictionary[player.Name].Alive = false
+    PlayerInfo.PlayerInformationDictionary[player.Name].ActiveModel = nil
     PlayerDied:FireClient(player)
 end
 
