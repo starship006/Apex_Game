@@ -21,10 +21,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local SetupPlayerInRoom : RemoteEvent = Remotes:WaitForChild("SetupPlayerInRoom")
 
-
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+local PlayerController = require(Shared:WaitForChild("PlayerController"))
 local PlayerInfo = require(Shared:WaitForChild("PlayerInfo"))
-local ComputerAppearanceController = require(Shared:WaitForChild("ComputerAppearanceController"))
+
+
+local CheckRoomSize: BindableEvent = Bindables:WaitForChild("CheckRoomSize")
 --setup of Room.Rooms table
 local rooms = Rooms:GetChildren()
 
@@ -46,6 +48,8 @@ local function OnPlayerRemoving(player)
     print(player.Name .. " is leaving")
 end
 
+local RoomID = 0
+
 function Room.new(newplayers:players,roomType:model)
     local newRoom = {}
     setmetatable(newRoom, Room)
@@ -56,6 +60,11 @@ function Room.new(newplayers:players,roomType:model)
     newRoom.TrackListeningEvents = {}
     newRoom.Winners = {}
     newRoom.Losers = {}
+    newRoom.ActivePlayers = nil
+
+    RoomID += 1
+    newRoom.ID = RoomID
+    
 
     table.insert(newRoom.TrackListeningEvents, game.Players.PlayerRemoving:Connect(OnPlayerRemoving))
     return newRoom
@@ -63,11 +72,11 @@ end
 
 
 --picks a random room to play from (should not be used by instances. this is static)
-function Room:PickRandomRoom(numPlayers: integer, roomType: integer)
+function Room.PickRandomRoom(numPlayers: integer, roomType: integer)
     --[[print(Room.Rooms[roomType])
     print(Room.Rooms[roomType][numPlayers])]]--
-    print("roomType" .. roomType)
-    print("numPlayers" .. numPlayers)
+    --print("roomType" .. roomType)
+    --print("numPlayers" .. numPlayers)
     local NewRoomType = Room.Rooms[roomType][numPlayers][math.random(#Room.Rooms[roomType][numPlayers])]
     if NewRoomType == nil then
         return error("nil newroomtype")
@@ -84,7 +93,6 @@ function Room:SetupRoomAtLocation(roomNumber:integer)
     self.Room.Parent = workspace
 
 
-
     self:SetupRoomPlayers()  --setting up everything in regards to the players (load char, change camera, send gui offer)
 
 
@@ -95,13 +103,8 @@ function Room:SetupRoomAtLocation(roomNumber:integer)
 end
 
 function Room:SetupRoomPlayers()
-    for index, player in ipairs(self.Players) do
-        
-        ComputerAppearanceController.SpawnComputer(player,self.Room.PrimaryPart.Position)     --TODO: load the player at a spawnpoint
-        
-        local args = {}
-        args[1] = self.Room.PrimaryPart.Position
-        SetupPlayerInRoom:FireClient(player,args)
+    for index, player in ipairs(self.Players) do        
+        PlayerController.Computers[player.Name]:Spawn(self.Room.PrimaryPart.Position)
     end
 end
 
@@ -117,8 +120,28 @@ end
 function Room:InitiateStart()
     --WinLogic is the module within each object that we run to collect the logic for everything
     --local WinLogic = require(self.Room:WaitForChild("WinLogic"))
+
+    self.Room:SetAttribute("ActivePlayers", #self.Players)
+
+
+    
+    local CheckRoomSizeEvent = CheckRoomSize.Event:Connect(function()
+        local playersLeft = PlayerInfo.ReturnRemaningActivePlayers()
+        print("room: " .. self.ID .. "says that there is this many players left: " ..playersLeft )        
+        if playersLeft == 1 then
+            self:InitiateRoomFinish() 
+        end
+    end)
+    table.insert(self.TrackListeningEvents,CheckRoomSizeEvent)
+
     wait(ROOM_TIME)
-    self:InitiateRoomFinish()    
+    PlayerController.Computers[self.Players[1].Name]:TakeDamage(100)
+
+    
+
+
+
+    
 
 end
 
@@ -131,7 +154,7 @@ function Room:InitiateRoomFinish()
     for index, player in ipairs(self.Players) do
         if PlayerInfo.PlayerInformationDictionary[player.Name].Alive then
            table.insert(self.Winners,player) 
-           ComputerAppearanceController.DespawnComputer(player)
+            PlayerController.Computers[player.Name]:HiddenDeath()
         end
     end
     
@@ -143,7 +166,7 @@ end
 --responsible for destroying room object, firing necessary events to clients that the round is over
 function Room:Cleanup()
     self.Room:Destroy()
-    for index, eventObject in ipairs(self.TrackListeningEvents)  do
+    for index, eventObject in pairs(self.TrackListeningEvents)  do
         eventObject:Disconnect()
     end
 end

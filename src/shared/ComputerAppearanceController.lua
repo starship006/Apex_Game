@@ -17,6 +17,9 @@ local StarterCharacter = Models:WaitForChild("StarterCharacter")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local PlayerInfo = require(Shared:WaitForChild("PlayerInfo"))
 
+local ServerStorage = game:GetService("ServerStorage")
+local Bindables = ServerStorage:WaitForChild("Bindables")
+
 
 function ComputerAppearanceController.new(Player)
     local FreshComputerModel = StarterCharacter:Clone()
@@ -27,24 +30,22 @@ function ComputerAppearanceController.new(Player)
 end
 
 function ComputerAppearanceController.SpawnComputer(Player,position)
+    if PlayerInfo.PlayerInformationDictionary[Player.Name].ActiveModel then
+        PlayerInfo.PlayerInformationDictionary[Player.Name].ActiveModel.Parent = nil
+        PlayerInfo.PlayerInformationDictionary[Player.Name].Active = false
+        print("what bruh")
+    end
 
-    local playerModel
-    if not PlayerInfo.PlayerInformationDictionary[Player.Name].ActiveModel then
-        playerModel = ComputerAppearanceController.ComputerModels[Player.Name]:Clone()
-        playerModel.Parent = workspace
-        for i,v in pairs(playerModel:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v:SetNetworkOwner(Player)
-            end
+    local playerModel = ComputerAppearanceController.ComputerModels[Player.Name]:Clone()
+    playerModel.Parent = workspace
+    for i,v in pairs(playerModel:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v:SetNetworkOwner(Player)
         end
-        PlayerInfo.SetPlayerAlive(Player, playerModel)
-    else
-        playerModel = PlayerInfo.PlayerInformationDictionary[Player.Name].ActiveModel
-        --add health to player
     end
     
-    
     playerModel:SetPrimaryPartCFrame(CFrame.new(position))
+    return playerModel
 end
 
 function ComputerAppearanceController.DespawnComputer(Player)
@@ -52,7 +53,6 @@ function ComputerAppearanceController.DespawnComputer(Player)
         error("cannot despawn computer that dosent exist")
     else
         PlayerInfo.PlayerInformationDictionary[Player.Name].ActiveModel:Destroy()
-        PlayerInfo.SetPlayerDying(Player)
     end
 end
 

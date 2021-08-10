@@ -7,7 +7,8 @@ local PlayerBecomingAlive: RemoteEvent = Remotes:WaitForChild("PlayerBecomingAli
 local PlayerDied: RemoteEvent = Remotes:WaitForChild("PlayerDied")
 
 local PlayerModel = nil
-local direction = Vector3.new(0,0,0)
+local LocalGravity = 0.2
+local direction = Vector3.new(0,-LocalGravity,0)
 local multiplier = 40
 
 local ContextActionService = game:GetService("ContextActionService")
@@ -20,7 +21,7 @@ local RIGHT_ACTION = "Right"
 local RunService = game:GetService("RunService")
 local mouse = game:GetService("Players").LocalPlayer:GetMouse()
 
-local LocalGravity = 0.2
+
 local MouseLookEventConnection = nil
 
 local function SimpleMovement(actionName, inputState, inputObject)
@@ -32,13 +33,13 @@ local function SimpleMovement(actionName, inputState, inputObject)
     end
       --right now x is upwards, z is leftright
     if actionName == FORWARD_ACTION then
-        direction += Vector3.new(1,-LocalGravity,0) * reverse
+        direction += Vector3.new(1* reverse,0,0) 
     elseif actionName == BACKWARD_ACTION then
-        direction += Vector3.new(-1,-LocalGravity,0) * reverse
+        direction += Vector3.new(-1* reverse,0,0) 
     elseif actionName == LEFT_ACTION then
-        direction += Vector3.new(0,-LocalGravity,-1) * reverse
+        direction += Vector3.new(0,0,-1* reverse) 
     elseif actionName == RIGHT_ACTION then
-        direction += Vector3.new(0,-LocalGravity,1) * reverse
+        direction += Vector3.new(0,0,1* reverse) 
     end
 
     PlayerModel.BasePart.BodyVelocity.Velocity = direction * multiplier
@@ -69,8 +70,7 @@ end)
 PlayerDied.OnClientEvent:Connect(function()
     ContextActionService:UnbindAllActions()
     MouseLookEventConnection:Disconnect()
-    PlayerModel = nil
-    
+    PlayerModel = nil    
 end)
 
 

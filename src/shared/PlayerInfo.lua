@@ -6,8 +6,6 @@ PlayerInfo.PlayerInformationDictionary = {}
 
 
 local Remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes")
-local PlayerBecomingAlive: RemoteEvent = Remotes:WaitForChild("PlayerBecomingAlive")
-local PlayerDied = Remotes:WaitForChild("PlayerDied")
 
 
 
@@ -32,15 +30,30 @@ end
 function PlayerInfo.SetPlayerAlive(player, activeModel)
     PlayerInfo.PlayerInformationDictionary[player.Name].Alive = true
     PlayerInfo.PlayerInformationDictionary[player.Name].ActiveModel = activeModel
-    PlayerBecomingAlive:FireClient(player, activeModel)
+    PlayerInfo.PlayerInformationDictionary[player.Name].Health = 10
+
 end
 
 function PlayerInfo.SetPlayerDying(player)
     PlayerInfo.PlayerInformationDictionary[player.Name].Alive = false
     PlayerInfo.PlayerInformationDictionary[player.Name].ActiveModel = nil
-    PlayerDied:FireClient(player)
 end
 
 
+--'active' meaning computers that are still fighting in a room
+function PlayerInfo.ReturnRemaningActivePlayers()
+    --print(debug.traceback("Specific moment during ReturnRemainingActivePlayers()"))
+    local count = 0
+    for playerName, playerInfo in pairs(PlayerInfo.PlayerInformationDictionary)  do
+        if playerInfo.Alive == true then
+            count += 1
+        end
+    end
+    return count
+end
+
+function PlayerInfo.ReturnRemainingInGamePlayers()
+    
+end
 
 return PlayerInfo

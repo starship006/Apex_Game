@@ -18,7 +18,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local PlayerInfo = require(Shared:WaitForChild("PlayerInfo"))
 local Room = require(Shared:WaitForChild("Room"))
 local ComputerAppearanceController = require(Shared:WaitForChild("ComputerAppearanceController"))
-
+local PlayerController = require(Shared:WaitForChild("PlayerController"))
 
 local ServerStorage = game:GetService("ServerStorage")
 local Bindables = ServerStorage:WaitForChild("Bindables")
@@ -49,17 +49,9 @@ function FullGame:Setup()
     --setting up playerinfo objects
     game.Players.CharacterAutoLoads = false
     for key, player in ipairs(self.Players) do        
-        --playerInfo stuff
-        local playerInfo = PlayerInfo.SetupNewPlayer(player)
+        local controller = PlayerController.new(player)
         
-        --make actual character models
-        ComputerAppearanceController.new(player)
-
-
-        --temp solution to "killing everyone"
-        player.Character.Humanoid:TakeDamage(10000000)
-        player.Character:Destroy()
-        
+        controller:CreateComputer()
     end
 end
 
@@ -75,7 +67,7 @@ end
 
 function FullGame:StartRoom(RoomType)
     --right now we are just stuffing everyone in a room
-    local RoomToUse = Room:PickRandomRoom(#self.Players,RoomType)   
+    local RoomToUse = Room.PickRandomRoom(#self.Players,RoomType)   
 
 
     --creating all the rooms
@@ -112,7 +104,7 @@ function FullGame:StartRoom(RoomType)
 
         --if so, then the loop repeats, continually waiting on everything to be setup
     end]]--
-    print("all rooms setup, starting gameplay")
+    --print("all rooms setup, starting gameplay")
 
     --start play
     spawn(function()
@@ -137,7 +129,7 @@ function FullGame:StartRoom(RoomType)
              break
         end
     end
-    print("all rooms finished with gampelay, cleaning up")
+    --print("all rooms finished with gampelay, cleaning up")
 
     --any post-round cleanup code for all the rooms can go here 
     local winners = {}
