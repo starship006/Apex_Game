@@ -52,6 +52,8 @@ function FullGame:Setup()
         local controller = PlayerController.new(player)
         
         controller:CreateComputer()
+
+        controller:OfferWeaponsToPlayer({"BasicTurret"})
     end
 end
 

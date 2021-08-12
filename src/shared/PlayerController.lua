@@ -13,7 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ComputerAppearanceController = require(Shared:WaitForChild("ComputerAppearanceController"))
 local PlayerInfo = require(Shared:WaitForChild("PlayerInfo"))
-
+local WeaponController = require(Shared:WaitForChild("WeaponController"))
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local SetupPlayerInRoom : RemoteEvent = Remotes:WaitForChild("SetupPlayerInRoom")
@@ -21,6 +21,7 @@ local SetupPlayerInRoom : RemoteEvent = Remotes:WaitForChild("SetupPlayerInRoom"
 local ServerStorage = game:GetService("ServerStorage")
 local Bindables = ServerStorage:WaitForChild("Bindables")
 local CheckRoomSize: BindableEvent = Bindables:WaitForChild("CheckRoomSize")
+local GivePlayerWeapon :BindableEvent = Bindables:WaitForChild("GivePlayerWeapon")
 
 local PlayerBecomingAlive: RemoteEvent = Remotes:WaitForChild("PlayerBecomingAlive")
 local PlayerDied = Remotes:WaitForChild("PlayerDied")
@@ -46,6 +47,9 @@ function PlayerController:CreateComputer()
 end
 
 function PlayerController:Spawn(position)
+
+    --creates weapon logic to be setup
+    WeaponController.CreateWeaponLogic(self.Player, PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon)
     --creates computer model
     local PlayerModel = ComputerAppearanceController.SpawnComputer(self.Player,position)
 
@@ -63,6 +67,7 @@ end
 --when a player "dies" from game loop logic
 function PlayerController:HiddenDeath()    
     ComputerAppearanceController.DespawnComputer(self.Player)
+    WeaponController.CloseWeaponLogic(self.Player)
     PlayerInfo.SetPlayerDying(self.Player)
 end
 
@@ -70,6 +75,7 @@ end
 --when a player actually dies from damage (this should happen within a room)
 function PlayerController:Die()    
     ComputerAppearanceController.DespawnComputer(self.Player)
+    WeaponController.CloseWeaponLogic(self.Player)
     PlayerInfo.SetPlayerDying(self.Player)
     PlayerDied:FireClient(self.Player)
     CheckRoomSize:Fire()
@@ -84,5 +90,41 @@ function PlayerController:TakeDamage(damageAmount)
     end
 end
 
+function PlayerController:GiveWeapon(weaponName)
+    table.insert(PlayerInfo.PlayerInformationDictionary[self.Player.Name].StoredWeapons, weaponName)  
+    print("bingooooo is given")
+    print(PlayerInfo.PlayerInformationDictionary[self.Player.Name].StoredWeapons)
+
+end
+
+
+local function onGivePlayerWeapon(Player, Weapon)
+    PlayerController.Computers[Player.Name]:GiveWeapon(Weapon)
+end
+
+GivePlayerWeapon.Event:Connect(onGivePlayerWeapon)
+
+function PlayerController:EquipWeapon(weaponName)
+    if weaponName == PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon then
+        --the weapon is already equipped, no biggy
+        print("weapon already equipped, we chill")
+    elseif weaponName == nil then
+        error("What")
+    elseif PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon then
+        self:DequipPrimaryWeapon()   
+        PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon = weaponName
+    end
+end
+
+function PlayerController:DequipPrimaryWeapon()
+    local PrimaryWeaponName = PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon
+    PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon = nil
+    table.insert(PlayerInfo.PlayerInformationDictionary[self.Player.Name].StoredWeapons, PrimaryWeaponName)
+end
+
+
+function PlayerController:OfferWeaponsToPlayer(Choices: table)
+    WeaponController.OfferWeaponsToPlayer(self.Player,Choices)
+end
 
 return PlayerController
