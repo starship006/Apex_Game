@@ -53,7 +53,7 @@ function FullGame:Setup()
         
         controller:CreateComputer()
 
-        controller:OfferWeaponsToPlayer({"BasicTurret"})
+        controller:OfferWeaponsToPlayer({"Basic Turret"})
     end
 end
 

@@ -128,7 +128,7 @@ function Room:InitiateStart()
     local CheckRoomSizeEvent = CheckRoomSize.Event:Connect(function()
         local playersLeft = PlayerInfo.ReturnRemaningActivePlayers()
         print("room: " .. self.ID .. "says that there is this many players left: " ..playersLeft )        
-        if playersLeft == 1 then
+        if playersLeft == 1 or playersLeft == 0 then
             self:InitiateRoomFinish() 
         end
     end)

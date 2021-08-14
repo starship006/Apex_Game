@@ -13,7 +13,7 @@ function PlayerInfo.SetupNewPlayer(Player)
     local newPlayer = {}
     
     newPlayer.PrimaryWeapon = nil
-    newPlayer.StoredWeapons = {}
+    newPlayer.StoredWeapons = {} --all the weapons the player holds (as of now, this is what it is. may change)
 
     newPlayer.Hardware = {}
     newPlayer.Software = {}

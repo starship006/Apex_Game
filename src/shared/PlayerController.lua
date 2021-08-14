@@ -95,6 +95,11 @@ function PlayerController:GiveWeapon(weaponName)
     print("bingooooo is given")
     print(PlayerInfo.PlayerInformationDictionary[self.Player.Name].StoredWeapons)
 
+    --(maybe dont leave this in prouction code)
+    if not PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon then
+        --equip the weapon
+        self:EquipWeapon(weaponName)
+    end
 end
 
 
@@ -108,18 +113,22 @@ function PlayerController:EquipWeapon(weaponName)
     if weaponName == PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon then
         --the weapon is already equipped, no biggy
         print("weapon already equipped, we chill")
+        return
     elseif weaponName == nil then
         error("What")
+        return
     elseif PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon then
-        self:DequipPrimaryWeapon()   
-        PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon = weaponName
+        self:DequipPrimaryWeapon()           
     end
+    ComputerAppearanceController.AddWeaponToModel(self.Player.Name,weaponName)
+    PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon = weaponName
 end
 
 function PlayerController:DequipPrimaryWeapon()
     local PrimaryWeaponName = PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon
     PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon = nil
-    table.insert(PlayerInfo.PlayerInformationDictionary[self.Player.Name].StoredWeapons, PrimaryWeaponName)
+    ComputerAppearanceController.RemoveWeaponFromModel(self.Player.Name)
+    --table.insert(PlayerInfo.PlayerInformationDictionary[self.Player.Name].StoredWeapons, PrimaryWeaponName)
 end
 
 

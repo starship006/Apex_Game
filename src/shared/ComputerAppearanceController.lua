@@ -21,6 +21,18 @@ local ServerStorage = game:GetService("ServerStorage")
 local Bindables = ServerStorage:WaitForChild("Bindables")
 
 
+--internal folders
+local WeaponsFolder= ReplicatedStorage:WaitForChild("Weapons"):GetChildren()
+
+
+ComputerAppearanceController.WeaponModels = {}
+for index, weaponModel in pairs(WeaponsFolder) do
+    ComputerAppearanceController.WeaponModels[weaponModel.Name] = weaponModel
+end
+
+
+
+
 function ComputerAppearanceController.new(Player)
     local FreshComputerModel = StarterCharacter:Clone()
 
@@ -56,6 +68,39 @@ function ComputerAppearanceController.DespawnComputer(Player)
     end
 end
 
+
+
+--this is super fragile and messed up. when i scale up, this needs to be rewritten
+
+function ComputerAppearanceController.AddWeaponToModel(PlayerName,WeaponModelName)
+    local targetWeaponModel = ComputerAppearanceController.WeaponModels[WeaponModelName]
+    local hitbox = targetWeaponModel:WaitForChild("Hitbox")
+    local weaponModelHeightOffset: number = hitbox.Size.Y
+
+    local toAddToPlayerModel = targetWeaponModel.MainPart
+    if not toAddToPlayerModel then
+        print("PART NOT FOUND, ERROR!!!!!!")
+    end
+
+    local PlayerModel = ComputerAppearanceController.ComputerModels[PlayerName]
+    toAddToPlayerModel.CFrame = PlayerModel.BasePart.CFrame + Vector3.new(0,weaponModelHeightOffset,0)
+
+    local Weld: WeldConstraint = PlayerModel:WaitForChild("Glowy"):WaitForChild("AttachToWeapon")
+    Weld.Part1 = toAddToPlayerModel
+    toAddToPlayerModel.Parent = PlayerModel
+end
+
+
+function ComputerAppearanceController.RemoveWeaponFromModel(PlayerName)
+    local PlayerModel = ComputerAppearanceController.ComputerModels[PlayerName]
+    local Weapon = PlayerModel:WaitForChild("MainPart")
+    if not Weapon then
+        print("couldnt find a weapon to remove, interesting")
+    else
+        Weapon:Destroy()
+        PlayerModel.Glowy.AttachToWeapon.Part1 = nil   --clearing the weld
+    end
+end
 
 
 
