@@ -7,7 +7,7 @@ local Room = {}
 Room.__index = Room
 
 
-local ROOM_TIME = 3
+local ROOM_TIME = 7
 
 --script setup
 Room.Rooms = {{},{},{}}   --[Room Type][Room Size][Index]   --Normal, Boss, Solo
@@ -99,14 +99,16 @@ function Room:SetupRoomAtLocation(roomNumber:integer)
 
 
 
-    wait(5)
+    wait(2)
     self.Room:SetAttribute("SetupFinished", true)
     RoomSetupFinished:Fire()
 end
 
 function Room:SetupRoomPlayers()
     for index, player in ipairs(self.Players) do        
-        PlayerController.Computers[player.Name]:Spawn(self.Room.PrimaryPart.Position)
+        --PlayerController.Computers[player.Name]:Spawn(self.Room.PrimaryPart.Position)
+        PlayerController.Computers[player.Name]:Spawn(Vector3.new(index * 5, 3, index * 5))
+
     end
 end
 
@@ -137,8 +139,8 @@ function Room:InitiateStart()
     table.insert(self.TrackListeningEvents,CheckRoomSizeEvent)
 
     wait(ROOM_TIME)
-    PlayerController.Computers[self.Players[1].Name]:TakeDamage(100)
-
+    --PlayerController.Computers[self.Players[1].Name]:TakeDamage(100)
+    self:InitiateRoomFinish() 
     
 
 

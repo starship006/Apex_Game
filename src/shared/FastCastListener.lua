@@ -4,12 +4,21 @@ local FastCastListener = {}
 
 
 
+
+--temp variables
+local velocity = 100
+
+
+
+--internal modules/dependencies
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local RequestFireWeapon = Remotes:WaitForChild("RequestFireWeapon")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ComputerAppearanceController = require(Shared:WaitForChild("ComputerAppearanceController"))
+local DamageHandler = require(Shared:WaitForChild("DamageHandler"))
+
 
 local Modules = ReplicatedStorage:WaitForChild("Modules")
 local FastCastRedux = require(Modules:WaitForChild("FastCastRedux"))
@@ -72,7 +81,7 @@ function FastCastListener.SetPlayerWeaponInformation(playerName, fireDelay, bull
     local CastParams = RaycastParams.new()
     CastParams.IgnoreWater = true
     CastParams.FilterType = Enum.RaycastFilterType.Blacklist
-    CastParams.FilterDescendantsInstances = {}
+    CastParams.FilterDescendantsInstances = {workspace.Baseplate}
 
     local CosmeticBulletsFolder = Instance.new("Folder")
     CosmeticBulletsFolder.Name = playerName .." CosmeticBulletsFolder"
@@ -82,7 +91,7 @@ function FastCastListener.SetPlayerWeaponInformation(playerName, fireDelay, bull
 
     local CastBehavior = FastCastRedux.newBehavior()
     CastBehavior.RaycastParams = CastParams
-    CastBehavior.MaxDistance = 200
+    CastBehavior.MaxDistance = 2000
     CastBehavior.HighFidelityBehavior = FastCastRedux.HighFidelityBehavior.Default -- maybe this will need to change
 
     CastBehavior.CosmeticBulletProvider = CosmeticBulletProvider
@@ -107,14 +116,14 @@ end
 
 
 
-
 function FastCastListener.__Fire(playerName, firePoint, bulletDirection)
     --can add in here variable bullet velocity depending on the speed of the computer. 
-    local modifiedBulletSpeed = (bulletDirection * 30)  --TODO: ADD BULLET DIRECTIONS
+    local modifiedBulletSpeed = (bulletDirection * velocity)  --TODO: ADD BULLET DIRECTIONS
 
 
     local simBullet = FastCastListener.Casters[playerName]:Fire(firePoint,bulletDirection,modifiedBulletSpeed, FastCastListener.CastBehaviors[playerName])
     simBullet.UserData.PlayerName = playerName
+    --will need to add in how much danage will be done here
 
 end
 
@@ -126,6 +135,7 @@ RequestFireWeapon.OnServerEvent:Connect(function(clientThatFired, mousePoint, fi
         FastCastListener.CanPlayerFire[clientThatFired.Name] = false
         print("firing!!!!!")
         --local FirePoint = ComputerAppearanceController.GetComputerFirePoint(clientThatFired.Name)
+        mousePoint = Vector3.new(mousePoint.X,firePoint.Y, mousePoint.Z)
         local mouseDirection = (mousePoint - firePoint).Unit
         FastCastListener.__Fire(clientThatFired.Name,firePoint,mouseDirection)
         spawn(function()
@@ -158,6 +168,12 @@ function FastCastListener.__CanRayPierce(cast, rayResult, segmentVelocity)
 
     --add code here for dealing damage to whatever can take damage
 
+    local PartHit = rayResult.Instance
+    if DamageHandler.SeeIfPartTakesDamage(PartHit) then
+        DamageHandler.DealDamageToPart(5,PartHit)
+        return false
+    end
+
     return true --yes, reflect
 
 end
@@ -170,6 +186,13 @@ function FastCastListener.__OnRayHit(cast, raycastResult, segmentVelocity, cosme
 	local normal = raycastResult.Normal
 
     --once again, add the damage logic here
+    print("PartHit!!!")
+    local PartHit = raycastResult.Instance
+    if DamageHandler.SeeIfPartTakesDamage(PartHit) then
+        print("part does take damage!")
+        DamageHandler.DealDamageToPart(5,PartHit)
+        return false
+    end
     --also MakeParticleFX() could be called here
 end
 

@@ -10,7 +10,7 @@ local FullGame = require(Shared:WaitForChild("FullGame"))
 local Players = game:GetService("Players")
 
 
-local AUTO_START = true
+local AUTO_START = false
 local function onStartGame()
     local NewGame = FullGame.new(Players:GetPlayers())
     NewGame:Setup()

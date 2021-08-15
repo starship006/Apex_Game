@@ -23,6 +23,7 @@ local ServerStorage = game:GetService("ServerStorage")
 local Bindables = ServerStorage:WaitForChild("Bindables")
 local CheckRoomSize: BindableEvent = Bindables:WaitForChild("CheckRoomSize")
 local GivePlayerWeapon :BindableEvent = Bindables:WaitForChild("GivePlayerWeapon")
+local DealDamageToPlayer: BindableEvent = Bindables:WaitForChild("DealDamageToPlayer")
 
 local PlayerBecomingAlive: RemoteEvent = Remotes:WaitForChild("PlayerBecomingAlive")
 local PlayerDied = Remotes:WaitForChild("PlayerDied")
@@ -139,5 +140,16 @@ end
 function PlayerController:OfferWeaponsToPlayer(Choices: table)
     WeaponController.OfferWeaponsToPlayer(self.Player,Choices)
 end
+
+
+
+
+function PlayerController.__onDealDamageToPlayer(PlayerName, damage)
+    print("event has been recieved !")
+    local controller = PlayerController.Computers[PlayerName]
+    controller:TakeDamage(damage)
+end
+DealDamageToPlayer.Event:Connect(PlayerController.__onDealDamageToPlayer)
+
 
 return PlayerController

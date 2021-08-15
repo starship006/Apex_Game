@@ -37,6 +37,7 @@ function ComputerAppearanceController.new(Player)
     local FreshComputerModel = StarterCharacter:Clone()
 
     FreshComputerModel.Name = Player.Name
+    FreshComputerModel:SetAttribute("PlayerName", Player.Name)
     ComputerAppearanceController.ComputerModels[Player.Name] = FreshComputerModel
 
 end
@@ -62,6 +63,7 @@ end
 
 function ComputerAppearanceController.DespawnComputer(Player)
     if not PlayerInfo.PlayerInformationDictionary[Player.Name].ActiveModel then
+        print(debug.traceback)
         error("cannot despawn computer that dosent exist")
     else
         PlayerInfo.PlayerInformationDictionary[Player.Name].ActiveModel:Destroy()

@@ -7,7 +7,7 @@ local PlayerBecomingAlive: RemoteEvent = Remotes:WaitForChild("PlayerBecomingAli
 local PlayerDied: RemoteEvent = Remotes:WaitForChild("PlayerDied")
 
 local PlayerModel = nil
-local LocalGravity = 0.2
+local LocalGravity = 0
 local direction = Vector3.new(0,-LocalGravity,0)
 local multiplier = 40
 
