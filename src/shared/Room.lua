@@ -24,6 +24,8 @@ local SetupPlayerInRoom : RemoteEvent = Remotes:WaitForChild("SetupPlayerInRoom"
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local PlayerController = require(Shared:WaitForChild("PlayerController"))
 local PlayerInfo = require(Shared:WaitForChild("PlayerInfo"))
+local FastCastListener = require(Shared:WaitForChild("FastCastListener"))
+
 
 
 local CheckRoomSize: BindableEvent = Bindables:WaitForChild("CheckRoomSize")
@@ -122,7 +124,7 @@ function Room:InitiateStart()
     --local WinLogic = require(self.Room:WaitForChild("WinLogic"))
 
     self.Room:SetAttribute("ActivePlayers", #self.Players)
-
+    FastCastListener.RoundStarting()
 
     
     local CheckRoomSizeEvent = CheckRoomSize.Event:Connect(function()
@@ -149,7 +151,7 @@ end
 --called when the room gameplay is finished
 function Room:InitiateRoomFinish()
     self.Room:SetAttribute("GameplayFinished", true)
-
+    FastCastListener.RoundOver()
     --set winners (if you are not a loser, you are a winner)
     for index, player in ipairs(self.Players) do
         if PlayerInfo.PlayerInformationDictionary[player.Name].Alive then

@@ -7,15 +7,18 @@ WeaponController.Weapons = {}  --not setup in this code. dont know if ill use th
 
 --internal modules
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local WeaponsFolder = ReplicatedStorage:WaitForChild("Weapons")
+local WeaponsFolder= ReplicatedStorage:WaitForChild("Weapons"):GetChildren()
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local FastCastListener = require(Shared:WaitForChild("FastCastListener"))
+
 --local PlayerInfo = require(Shared:WaitForChild("PlayerInfo"))
 --local PlayerController = require(Shared:WaitForChild("PlayerController"))
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local SendOfferWeaponChoices: RemoteEvent = Remotes:WaitForChild("SendOfferWeaponChoices")
 local ReturnOfferWeaponChoices: RemoteEvent = Remotes:WaitForChild("ReturnOfferWeaponChoices")
+local SendPlayerOkToFire: RemoteEvent = Remotes:WaitForChild("SendPlayerOkToFire")
 
 local ServerStorage = game:GetService("ServerStorage")
 local Bindables = ServerStorage:WaitForChild("Bindables")
@@ -24,7 +27,16 @@ local GivePlayerWeapon :BindableEvent = Bindables:WaitForChild("GivePlayerWeapon
 WeaponController.__CurrentRequestTowardsPlayers = {}
 
 --get weapons setup
-WeaponController.WeaponsModels = WeaponsFolder:GetChildren()
+--internal folders
+
+
+WeaponController.WeaponModels = {}
+for index, weaponModel in pairs(WeaponsFolder) do
+    WeaponController.WeaponModels[weaponModel.Name] = weaponModel
+end
+
+
+
 
 
 function WeaponController.OfferWeaponsToPlayer(Player: Player, Choices: table)
@@ -60,15 +72,42 @@ function WeaponController.OnReturnOfferWeaponChoices(Player: Player, choice: int
         end    
     end
 end
+
+
+--equip the weapon of string
+function WeaponController.EquipWeapon(PlayerName, weaponChoice: string)
+    local Weapon = WeaponController.WeaponModels[weaponChoice]
+    local Bullet = Weapon:WaitForChild("Bullet")
+    local FireDelay = Bullet:GetAttribute("FireDelay")
+
+    FastCastListener.SetPlayerWeaponInformation(PlayerName, FireDelay, Bullet)
+
+end
+
+
+
 ReturnOfferWeaponChoices.OnServerEvent:Connect(WeaponController.OnReturnOfferWeaponChoices)
 
+
+
+
+
+
+
+
+--establish the ok to fire
 function WeaponController.CreateWeaponLogic(Player: Player)
-    
+    --right now we are assuming that each weapon is using fastcast. we will expand later
+
+    --FastCastListener work?
+    SendPlayerOkToFire:FireClient(Player)
 
 
 
 end
 
+
+--closing the ok to fire
 function WeaponController.CloseWeaponLogic(Player: Player)
     
 

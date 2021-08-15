@@ -74,3 +74,11 @@ PlayerDied.OnClientEvent:Connect(function()
 end)
 
 
+local sent = false
+function onAcceptPlayerWeaponRequest()
+    if not sent then
+        game.ReplicatedStorage.Remotes.ReturnOfferWeaponChoices:FireServer(1)
+        sent = true
+    end
+end
+ContextActionService:BindAction("AcceptPlayerWeaponRequest",onAcceptPlayerWeaponRequest, false, Enum.KeyCode.H)

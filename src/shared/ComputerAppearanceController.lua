@@ -36,7 +36,7 @@ end
 function ComputerAppearanceController.new(Player)
     local FreshComputerModel = StarterCharacter:Clone()
 
-    
+    FreshComputerModel.Name = Player.Name
     ComputerAppearanceController.ComputerModels[Player.Name] = FreshComputerModel
 
 end
@@ -102,6 +102,15 @@ function ComputerAppearanceController.RemoveWeaponFromModel(PlayerName)
     end
 end
 
+function ComputerAppearanceController.GetComputerFirePoint(PlayerName)
+    local ActiveModel = PlayerInfo.PlayerInformationDictionary[PlayerName].ActiveModel
 
+    if ActiveModel then
+        local FirePoint: Attachment = ActiveModel:WaitForChild("MainPart"):WaitForChild("FireSpot")
+        return FirePoint.WorldPosition
+    else
+        print("no active model!")            
+    end
+end
 
 return ComputerAppearanceController

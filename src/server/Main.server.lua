@@ -9,11 +9,18 @@ local FullGame = require(Shared:WaitForChild("FullGame"))
 
 local Players = game:GetService("Players")
 
+
+local AUTO_START = true
 local function onStartGame()
     local NewGame = FullGame.new(Players:GetPlayers())
     NewGame:Setup()
     NewGame:Start()
 
+end
+
+if AUTO_START then
+    wait(3)
+    onStartGame()
 end
 
 StartGame.Event:Connect(onStartGame)

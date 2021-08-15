@@ -14,6 +14,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ComputerAppearanceController = require(Shared:WaitForChild("ComputerAppearanceController"))
 local PlayerInfo = require(Shared:WaitForChild("PlayerInfo"))
 local WeaponController = require(Shared:WaitForChild("WeaponController"))
+local FastCastListener = require(Shared:WaitForChild("FastCastListener"))
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local SetupPlayerInRoom : RemoteEvent = Remotes:WaitForChild("SetupPlayerInRoom")
@@ -43,18 +44,20 @@ function PlayerController:CreateComputer()
     --temp solution to "killing everyone"
     self.Player.Character.Humanoid:TakeDamage(10000000)
     self.Player.Character:Destroy()
-
+    FastCastListener.SetupPlayer(self.Player.Name)
 end
 
 function PlayerController:Spawn(position)
 
-    --creates weapon logic to be setup
-    WeaponController.CreateWeaponLogic(self.Player, PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon)
     --creates computer model
     local PlayerModel = ComputerAppearanceController.SpawnComputer(self.Player,position)
 
     --sets player information alive
     PlayerInfo.SetPlayerAlive(self.Player, PlayerModel)
+
+    
+    --allow weapon to be fired
+    WeaponController.CreateWeaponLogic(self.Player)  --this currently does nothing
 
     --send information and events to client player
     local args = {}
@@ -121,6 +124,7 @@ function PlayerController:EquipWeapon(weaponName)
         self:DequipPrimaryWeapon()           
     end
     ComputerAppearanceController.AddWeaponToModel(self.Player.Name,weaponName)
+    WeaponController.EquipWeapon(self.Player.Name,weaponName)
     PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon = weaponName
 end
 
