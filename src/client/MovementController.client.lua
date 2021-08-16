@@ -8,7 +8,7 @@ local PlayerDied: RemoteEvent = Remotes:WaitForChild("PlayerDied")
 
 local PlayerModel = nil
 local LocalGravity = 0
-local direction = Vector3.new(0,-LocalGravity,0)
+--local direction = Vector3.new(0,-LocalGravity,0)
 local multiplier = 40
 
 local ContextActionService = game:GetService("ContextActionService")
@@ -22,10 +22,12 @@ local RunService = game:GetService("RunService")
 local mouse = game:GetService("Players").LocalPlayer:GetMouse()
 
 
+local UserInputService = game:GetService("UserInputService")
+
 local MouseLookEventConnection = nil
 
 local function SimpleMovement(actionName, inputState, inputObject)
-    local reverse
+    --[[local reverse
     if inputState == Enum.UserInputState.Begin then
         reverse = 1
     else
@@ -40,7 +42,25 @@ local function SimpleMovement(actionName, inputState, inputObject)
         direction += Vector3.new(0,0,-1* reverse) 
     elseif actionName == RIGHT_ACTION then
         direction += Vector3.new(0,0,1* reverse) 
+    end]]--
+
+    local direction = Vector3.new(0,0,0)
+    if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+        direction += Vector3.new(1,0,0) 
     end
+    if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+        direction += Vector3.new(0,0,1) 
+    end
+    if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+        direction += Vector3.new(0,0,-1) 
+    end
+    if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+        direction += Vector3.new(-1,0,0) 
+    end
+
+
+
+
 
     PlayerModel.BasePart.BodyVelocity.Velocity = direction * multiplier
 end
@@ -62,7 +82,7 @@ PlayerBecomingAlive.OnClientEvent:Connect(function(activeModel)
 
     --set up the new character movement
     PlayerModel = activeModel
-    PlayerModel.BasePart.BodyVelocity.Velocity = direction * 0
+    PlayerModel.BasePart.BodyVelocity.Velocity = Vector3.new(0,0,0)
     
     MouseLookEventConnection = RunService.Heartbeat:Connect(MakeComputerFaceMouse)
 end)

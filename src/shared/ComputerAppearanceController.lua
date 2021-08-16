@@ -38,6 +38,7 @@ function ComputerAppearanceController.new(Player)
 
     FreshComputerModel.Name = Player.Name
     FreshComputerModel:SetAttribute("PlayerName", Player.Name)
+    FreshComputerModel:WaitForChild("Glowy").BrickColor = BrickColor.random()
     ComputerAppearanceController.ComputerModels[Player.Name] = FreshComputerModel
 
 end
@@ -83,6 +84,8 @@ function ComputerAppearanceController.AddWeaponToModel(PlayerName,WeaponModelNam
     if not toAddToPlayerModel then
         print("PART NOT FOUND, ERROR!!!!!!")
     end
+
+    toAddToPlayerModel = toAddToPlayerModel:Clone()
 
     local PlayerModel = ComputerAppearanceController.ComputerModels[PlayerName]
     toAddToPlayerModel.CFrame = PlayerModel.BasePart.CFrame + Vector3.new(0,weaponModelHeightOffset,0)

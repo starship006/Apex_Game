@@ -91,7 +91,7 @@ function FastCastListener.SetPlayerWeaponInformation(playerName, fireDelay, bull
 
     local CastBehavior = FastCastRedux.newBehavior()
     CastBehavior.RaycastParams = CastParams
-    CastBehavior.MaxDistance = 2000
+    CastBehavior.MaxDistance = 200
     CastBehavior.HighFidelityBehavior = FastCastRedux.HighFidelityBehavior.Default -- maybe this will need to change
 
     CastBehavior.CosmeticBulletProvider = CosmeticBulletProvider
