@@ -68,11 +68,13 @@ function FastCastListener.SetPlayerWeaponInformation(playerName, fireDelay, bull
 
     --remove cast events if they are there
     if FastCastListener.Casters[playerName] then
+        --[[
         local Caster = FastCastListener.Casters[playerName]
         Caster.RayHit:Disconnect()
         Caster.RayPierced:Disconnect()
         Caster.LengthChanged:Disconnect()
-        Caster.CastTerminating:Disconnect()
+        Caster.CastTerminating:Disconnect()]]--
+        FastCastListener.Casters[playerName] = nil --this might be the easiest way to destroy stuff
     end
 
     --create cast object
@@ -133,7 +135,7 @@ RequestFireWeapon.OnServerEvent:Connect(function(clientThatFired, mousePoint, fi
     --print("server: recieved fire request")
     if FastCastListener.CanPlayerFire[clientThatFired.Name] then
         FastCastListener.CanPlayerFire[clientThatFired.Name] = false
-        print("firing!!!!!")
+        --print("firing!!!!!")
         --local FirePoint = ComputerAppearanceController.GetComputerFirePoint(clientThatFired.Name)
         mousePoint = Vector3.new(mousePoint.X,firePoint.Y, mousePoint.Z)
         local mouseDirection = (mousePoint - firePoint).Unit
@@ -186,10 +188,10 @@ function FastCastListener.__OnRayHit(cast, raycastResult, segmentVelocity, cosme
 	local normal = raycastResult.Normal
 
     --once again, add the damage logic here
-    print("PartHit!!!")
+    --print("PartHit!!!")
     local PartHit = raycastResult.Instance
     if DamageHandler.SeeIfPartTakesDamage(PartHit) then
-        print("part does take damage!")
+        --print("part does take damage!")
         DamageHandler.DealDamageToPart(5,PartHit)
         return false
     end

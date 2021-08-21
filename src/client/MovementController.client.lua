@@ -99,6 +99,12 @@ function onAcceptPlayerWeaponRequest()
     if not sent then
         game.ReplicatedStorage.Remotes.ReturnOfferWeaponChoices:FireServer(1)
         sent = true
+
+
+        spawn(function()
+            wait(5)
+            sent = false
+        end)
     end
 end
 ContextActionService:BindAction("AcceptPlayerWeaponRequest",onAcceptPlayerWeaponRequest, false, Enum.KeyCode.H)

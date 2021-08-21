@@ -159,6 +159,7 @@ function Room:InitiateRoomFinish()
         if PlayerInfo.PlayerInformationDictionary[player.Name].Alive then
            table.insert(self.Winners,player) 
             PlayerController.Computers[player.Name]:HiddenDeath()
+            PlayerController.Computers[player.Name]:HasWonRound()
         end
     end
     

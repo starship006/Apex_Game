@@ -102,8 +102,9 @@ function PlayerController:GiveWeapon(weaponName)
     --(maybe dont leave this in prouction code)
     if not PlayerInfo.PlayerInformationDictionary[self.Player.Name].PrimaryWeapon then
         --equip the weapon
-        self:EquipWeapon(weaponName)
+        --self:EquipWeapon(weaponName)
     end
+    self:EquipWeapon(weaponName)   --auto equip FOR NOW
 end
 
 
@@ -142,6 +143,11 @@ function PlayerController:OfferWeaponsToPlayer(Choices: table)
 end
 
 
+--holds the logic on what events to fire upon the win of a player
+function PlayerController:HasWonRound()
+    WeaponController.OfferWeaponsToPlayer(self.Player,{WeaponController.ReturnRandomWeaponName()})
+    --fire gui to player here    
+end
 
 
 function PlayerController.__onDealDamageToPlayer(PlayerName, damage)
@@ -150,6 +156,9 @@ function PlayerController.__onDealDamageToPlayer(PlayerName, damage)
     controller:TakeDamage(damage)
 end
 DealDamageToPlayer.Event:Connect(PlayerController.__onDealDamageToPlayer)
+
+
+
 
 
 return PlayerController

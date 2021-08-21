@@ -30,9 +30,11 @@ WeaponController.__CurrentRequestTowardsPlayers = {}
 --internal folders
 
 
-WeaponController.WeaponModels = {}
+WeaponController.WeaponModels = {}  --[WeaponName][Model]
+WeaponController.IndexWeapons = {}  --[Index][Model]
 for index, weaponModel in pairs(WeaponsFolder) do
     WeaponController.WeaponModels[weaponModel.Name] = weaponModel
+    WeaponController.IndexWeapons[index] = weaponModel.Name
 end
 
 
@@ -48,7 +50,13 @@ function WeaponController.OfferWeaponsToPlayer(Player: Player, Choices: table)
             WeaponController.__CurrentRequestTowardsPlayers[Player][i] = weaponChoice
         end
     else
-        error("there was something inside of weapon controller to start")    
+        warn("there was something inside of weapon controller to start")    
+        WeaponController.__CurrentRequestTowardsPlayers[Player] = {}
+
+
+        for i, weaponChoice in ipairs(Choices) do
+            WeaponController.__CurrentRequestTowardsPlayers[Player][i] = weaponChoice
+        end
     end
 
     SendOfferWeaponChoices:FireClient(Player,Choices)
@@ -84,7 +92,9 @@ function WeaponController.EquipWeapon(PlayerName, weaponChoice: string)
 
 end
 
-
+function WeaponController.ReturnRandomWeaponName()
+    return WeaponController.IndexWeapons[2]
+end
 
 ReturnOfferWeaponChoices.OnServerEvent:Connect(WeaponController.OnReturnOfferWeaponChoices)
 
